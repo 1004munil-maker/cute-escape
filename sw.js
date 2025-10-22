@@ -20,8 +20,8 @@ const ASSETS = [
   '/cute-escape/public/icons/icon-512.png',
 
   // 画像（キャラ）
-'/cute-escape/public/assets/png/player-ribbon-256.png',
-'/cute-escape/public/assets/png/player-boy-256.png',
+'/cute-escape/public/assets/player-ribbon-256.png',
+'/cute-escape/public/assets/player-boy-256.png',
 ];
 
 self.addEventListener('install', (e) => {

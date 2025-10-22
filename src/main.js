@@ -31,8 +31,8 @@ async function loadBitmap(src){
 ============================ */
 const charSrcs = {
 
-  ribbon: '/cute-escape/public/assets/png/player-ribbon-256.png?v=20251025',
-  boy:    '/cute-escape/public/assets/png/player-boy-256.png?v=20251025'
+  ribbon: '/cute-escape/public/assets/player-ribbon-256.png?v=20251025',
+  boy:    '/cute-escape/public/assets/player-boy-256.png?v=20251025'
 };
 
 const charImages = {};
