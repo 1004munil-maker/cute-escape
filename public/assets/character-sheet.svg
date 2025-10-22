@@ -1,0 +1,45 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff8fd"/>
+      <stop offset="100%" stop-color="#f2e6f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <!-- Title -->
+  <text x="256" y="44" font-family="ui-rounded, system-ui, sans-serif" font-size="24" text-anchor="middle" fill="#333">cute-escape キャラシート</text>
+
+  <!-- Body -->
+  <g transform="translate(156,120)">
+    <rect x="0" y="0" rx="36" ry="36" width="200" height="220" fill="#ffffff" stroke="#f0dbe6" stroke-width="3"/>
+    <!-- Eyes -->
+    <circle cx="65" cy="90" r="10" fill="#333"/>
+    <circle cx="135" cy="90" r="10" fill="#333"/>
+    <!-- Cheeks -->
+    <circle cx="55" cy="125" r="10" fill="#ff9db8" opacity=".9"/>
+    <circle cx="145" cy="125" r="10" fill="#ff9db8" opacity=".9"/>
+    <!-- Ribbon -->
+    <circle cx="45" cy="35" r="16" fill="#ff8fb1"/>
+    <circle cx="70" cy="30" r="12" fill="#ff8fb1"/>
+  </g>
+
+  <!-- Palette -->
+  <g transform="translate(64,380)">
+    <text x="0" y="0" font-family="ui-rounded, system-ui, sans-serif" font-size="16" fill="#333">Palette</text>
+    <rect x="0" y="12" width="40" height="24" fill="#ffffff" stroke="#ddd"/>
+    <rect x="48" y="12" width="40" height="24" fill="#ff8fb1"/>
+    <rect x="96" y="12" width="40" height="24" fill="#ff9db8"/>
+    <rect x="144" y="12" width="40" height="24" fill="#f6eaf1"/>
+    <rect x="192" y="12" width="40" height="24" fill="#333"/>
+  </g>
+
+  <!-- Notes -->
+  <g transform="translate(280,360)">
+    <text x="0" y="0" font-family="ui-rounded, system-ui, sans-serif" font-size="14" fill="#333">
+      <tspan x="0" dy="0">・形：丸みスクエア（優しい印象）</tspan>
+      <tspan x="0" dy="20">・ほっぺ：#FF9DB8（90%）</tspan>
+      <tspan x="0" dy="20">・装飾：リボン #FF8FB1</tspan>
+      <tspan x="0" dy="20">・影は最小限／線は細め</tspan>
+    </text>
+  </g>
+</svg>
