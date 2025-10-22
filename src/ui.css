@@ -1,40 +1,35 @@
 :root{ --bg:#fff7fb; --ink:#2a2a2a; --accent:#ff8fb1; --panel:#ffffff; }
 *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-html,body{ margin:0; height:100%; background:var(--bg); overflow:hidden; }
-/* ビューポートを9:18に固定して中央配置 */
-#viewport {
-  position: relative;
-  width: 100%;
-  max-width: 100vh;        /* 縦横比維持のための目安 */
-  aspect-ratio: 9 / 18;    /* ★これで縦長を保証 */
-  margin: 0 auto;
-  background: var(--bg);
-  overflow: hidden;
+
+/* 画面全体の中央寄せ＆背景 */
+html,body{ margin:0; height:100%; }
+body{
+  display:grid;
+  place-items:center;
+  background:var(--bg);
+  overflow:hidden;
 }
 
-/* オーバーレイを中央に配置 */
-.overlay {
-  position: absolute;   /* fixed ではなく relative 親 (#viewport) に対して配置 */
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: rgba(246, 234, 241, 0.8);
-  backdrop-filter: blur(4px);
+/* 9:18の枠（ここにすべて収める） */
+#viewport{
+  position:relative;
+  width: min(92vw, 46vh);    /* ← 横幅は画面幅の92%か、縦基準の46%の小さい方 */
+  aspect-ratio: 9 / 18;      /* ← 9:18 を強制 */
+  background:#f7eff5;
+  border-radius:12px;
+  box-shadow:0 10px 40px rgba(0,0,0,.12);
+  overflow:hidden;
+  transform: translateZ(0);   /* iOS の微妙なズレ対策 */
 }
 
-.overlay.hidden {
-  display: none;
-}
-@media (max-aspect-ratio: 1/2){
-  #viewport{ width: 90vw; height: 180vw; }
-}
+/* === キャンバス === */
 canvas#game{
   position:absolute; inset:0; width:100%; height:100%;
   background: linear-gradient(#fff8fd, #f2e6f0);
   z-index:0;
 }
+
+/* === HUD === */
 #hud{
   position:absolute; left:0; right:0; top:0;
   display:flex; justify-content:center; padding:8px; z-index:20;
@@ -44,50 +39,72 @@ canvas#game{
   box-shadow:0 4px 20px rgba(0,0,0,.1); color:var(--ink);
   font:600 14px/1.1 ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+
+/* === Overlay（中央固定）=== */
 .overlay{
-  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-  padding:16px; background:rgba(246,234,241,.8); backdrop-filter:blur(3px); z-index:30;
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  padding:16px;
+  background:rgba(246,234,241,.8); backdrop-filter:blur(3px);
+  z-index:30;
 }
 .overlay.hidden{ display:none; }
-.overlay.start{ justify-content:flex-end; padding-bottom:10%; }
+
+/* オーバーレイ内カード */
 .center .card, .overlay .card{
   background:var(--panel); padding:16px 18px; border-radius:14px;
-  box-shadow:0 10px 40px rgba(0,0,0,.15); text-align:center; color:var(--ink);
+  box-shadow:0 10px 40px rgba(0,0,0,.15);
+  text-align:center; color:var(--ink);
 }
 .card h1{ margin:6px 0 8px; font:700 20px/1.2 ui-rounded, system-ui; }
 .card h2{ margin:6px 0 8px; font:700 18px/1.2 ui-rounded, system-ui; }
 .card p{ margin:0 0 10px; font:500 13px/1.4 ui-rounded, system-ui; color:#5a5a5a; }
 .card .char{ width:96px; height:auto; display:block; margin:0 auto 8px; }
 .row{ display:flex; gap:10px; justify-content:center; margin-top:8px; }
-button{ border:0; padding:10px 14px; border-radius:12px; font:600 14px/1 ui-rounded, system-ui;
-  background:#f1e2ea; color:var(--ink); box-shadow:0 4px 16px rgba(0,0,0,.08); }
+
+button{
+  border:0; padding:10px 14px; border-radius:12px;
+  font:600 14px/1 ui-rounded, system-ui;
+  background:#f1e2ea; color:var(--ink);
+  box-shadow:0 4px 16px rgba(0,0,0,.08);
+}
 button.primary{ background:var(--accent); color:#fff; }
 button.ghost{ background:transparent; border:2px solid #e8d4df; }
+
+/* === D-Pad === */
 #controls{
   position:absolute; left:0; right:0; bottom:0; z-index:25;
   display:flex; justify-content:center; padding:8px 0 10px;
+  pointer-events:none;               /* 全体は拾わない */
 }
 .dpad{ display:flex; flex-direction:column; align-items:center; gap:6px; }
 .dpad .mid{ display:flex; gap:6px; align-items:center; }
-.btn{ min-width:46px; min-height:46px; border-radius:12px; background:#fff; }
+.btn{
+  min-width:46px; min-height:46px; border-radius:12px; background:#fff;
+  pointer-events:auto;               /* ボタンだけ操作可能 */
+}
 #btn-up, #btn-down, #btn-left, #btn-right{ font-size:16px; }
 
 /* === コピー/選択/長押しコールアウトの全面禁止（ゲーム領域） === */
-html, body, #viewport, #viewport * {
+#viewport, #viewport *{
   -webkit-user-select: none !important;
   user-select: none !important;
   -webkit-touch-callout: none !important; /* iOS: 長押しメニュー */
-  -webkit-tap-highlight-color: transparent; /* タップ時のハイライト */
+  -webkit-tap-highlight-color: transparent;
+}
+#viewport img, #viewport canvas, #viewport a, #viewport button{
+  -webkit-user-drag: none;    /* iOS Safari/Chrome: 長押し→画像保存を防止 */
+  touch-action: manipulation; /* 長押しズーム/ダブルタップ抑制 */
 }
 
-#viewport img, #viewport canvas, #viewport a, #viewport button {
-  -webkit-user-drag: none;   /* iOS Safari/Chrome: 長押し→画像保存を防止 */
-  touch-action: manipulation; /* 長押しズームやダブルタップを抑制 */
-}
-
-/* もし一部だけ選択OKにしたいとき（説明テキスト等） */
-[data-allow-select], [data-allow-select] * {
+/* 一部だけ選択OKにしたいとき（説明テキスト等） */
+[data-allow-select], [data-allow-select] *{
   -webkit-user-select: text !important;
   user-select: text !important;
   -webkit-touch-callout: default !important;
 }
+
+/* 余計な競合を生むので削除：
+   - @media (max-aspect-ratio: 1/2){ #viewport{ width:90vw; height:180vw; } }
+   - .overlay の重複定義
+   - .overlay.start の下寄せ指定（中央寄せを崩すため） */
