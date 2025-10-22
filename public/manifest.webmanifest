@@ -1,13 +1,21 @@
 {
   "name": "cute-escape",
   "short_name": "cute-escape",
-  "start_url": "/<repo>/index.html?v=20251024",   
-  "scope": "/<repo>/",                             
+  "start_url": "/cute-escape/index.html?v=20251024",
+  "scope": "/cute-escape/",
   "display": "standalone",
   "background_color": "#fff7fb",
   "theme_color": "#f6eaf1",
   "icons": [
-    { "src": "/<repo>/public/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/<repo>/public/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "/cute-escape/public/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/cute-escape/public/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }

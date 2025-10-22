@@ -6,18 +6,12 @@
   <meta name="theme-color" content="#f6eaf1" />
   <title>cute-escape</title>
   <link rel="manifest" href="./public/manifest.webmanifest" />
-
-  <!-- キャッシュ破りのクエリ（開発時用）をCSSにも付与 -->
-  <link rel="stylesheet" href="./src/ui.css?v=20251023" />
+  <link rel="stylesheet" href="./src/ui.css?v=20251024" />
 </head>
 <body>
-  <!-- 9:18 ビューポート（ここに全て収める） -->
   <div id="viewport">
-    <!-- HUD -->
     <div id="hud"><div id="timer" class="badge">30.0</div></div>
-    <!-- ゲームキャンバス -->
     <canvas id="game" aria-label="game canvas"></canvas>
-    <!-- D-Pad -->
     <div id="controls">
       <div class="dpad">
         <button id="btn-up" class="btn">▲</button>
@@ -28,7 +22,6 @@
         </div>
       </div>
     </div>
-    <!-- START / RESULT オーバーレイ -->
     <div id="start-screen" class="overlay start">
       <div class="card">
         <h1>cute-escape</h1>
@@ -51,31 +44,19 @@
     </div>
   </div>
 
-  <!-- ▼ ここから：あなたのスニペット（そのまま） ▼ -->
   <script>
-  const isProd = /github\.io$/.test(location.hostname);
-  if ('serviceWorker' in navigator && isProd) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/<repo>/sw.js', { scope: '/<repo>/' }).catch(()=>{});
-    });
-  } else {
-    navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
-    caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
-  }
-
-    // iOS ダブルタップズーム無効
-    (function(){
-      let last=0;
-      window.addEventListener('touchend', e=>{
-        const now=Date.now();
-        if(now-last<350) e.preventDefault();
-        last=now;
-      }, {passive:false});
-    })();
+    const isProd = /github\.io$/.test(location.hostname);
+    if ('serviceWorker' in navigator && isProd) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/cute-escape/sw.js', { scope: '/cute-escape/' }).catch(()=>{});
+      });
+    } else {
+      navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
+      caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
+    }
+    (function(){ let last=0; window.addEventListener('touchend', e=>{ const now=Date.now(); if(now-last<350) e.preventDefault(); last=now; }, {passive:false}); })();
   </script>
 
-  <!-- キャッシュ破りのクエリ（開発時用）を main.js にも付与 -->
-  <script type="module" src="./src/main.js?v=20251023"></script>
-  <!-- ▲ ここまで：あなたのスニペット ▲ -->
+  <script type="module" src="./src/main.js?v=20251024"></script>
 </body>
 </html>
