@@ -185,5 +185,12 @@ button.ghost{ background:transparent; border:2px solid #e8d4df; }
   opacity:1;
   transform: translateY(0);
 }
+/* ロック中の見た目 */
+.char-btn[disabled],
+#btn-choose[disabled]{
+  opacity: .55;
+  pointer-events: none;
+  filter: grayscale(.2);
+}
 
 /* 既存の .char-select / .char-btn はそのままでOK（前回渡した色/押下スタイルも可） */
