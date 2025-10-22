@@ -30,8 +30,9 @@ async function loadBitmap(src){
    キャラ画像（PNG）をプリロード
 ============================ */
 const charSrcs = {
-  ribbon: './public/assets/png/player-ribbon-256.png',
-  boy:    './public/assets/png/player-boy-256.png'
+
+  ribbon: '/cute-escape/public/assets/png/player-ribbon-256.png?v=20251025',
+  boy:    '/cute-escape/public/assets/png/player-boy-256.png?v=20251025'
 };
 
 const charImages = {};
