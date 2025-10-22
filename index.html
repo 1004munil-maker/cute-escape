@@ -53,16 +53,15 @@
 
   <!-- ▼ ここから：あなたのスニペット（そのまま） ▼ -->
   <script>
-    const isProd = /github\.io$/.test(location.hostname);
-    if ('serviceWorker' in navigator && isProd) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./public/sw.js').catch(()=>{});
-      });
-    } else {
-      // 開発時はSWを無効化＆キャッシュ掃除（念のため）
-      navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
-      caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
-    }
+  const isProd = /github\.io$/.test(location.hostname);
+  if ('serviceWorker' in navigator && isProd) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/<repo>/sw.js', { scope: '/<repo>/' }).catch(()=>{});
+    });
+  } else {
+    navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
+    caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
+  }
 
     // iOS ダブルタップズーム無効
     (function(){
