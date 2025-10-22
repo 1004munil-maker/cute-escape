@@ -108,3 +108,25 @@ button.ghost{ background:transparent; border:2px solid #e8d4df; }
    - @media (max-aspect-ratio: 1/2){ #viewport{ width:90vw; height:180vw; } }
    - .overlay の重複定義
    - .overlay.start の下寄せ指定（中央寄せを崩すため） */
+
+   /* === キャラ選択 === */
+.char-select{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin:8px 0 12px;
+}
+.char-btn{
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  background:#fff;
+  border:2px solid #e8d4df;
+  border-radius:12px;
+  padding:8px 10px;
+  min-width:92px;
+}
+.char-btn.selected{
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255,143,177,.18) inset;
+}
+.char-btn img{ width:64px; height:64px; pointer-events:none; }
+.char-btn span{ font:600 12px/1 ui-rounded, system-ui; color:#555; }

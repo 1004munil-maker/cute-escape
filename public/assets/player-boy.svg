@@ -1,0 +1,14 @@
+<!-- public/assets/player-boy.svg -->
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <!-- 本体（白の角丸） -->
+  <rect x="40" y="40" width="176" height="176" rx="28" fill="#ffffff" stroke="#dfe8f5" stroke-width="2"/>
+  <!-- 目（少しキリッと寄せ気味に） -->
+  <circle cx="108" cy="112" r="8" fill="#2a2a2a"/>
+  <circle cx="148" cy="112" r="8" fill="#2a2a2a"/>
+  <!-- ほっぺ（薄めピンクで統一感） -->
+  <circle cx="96"  cy="156" r="9" fill="#ffb3c4"/>
+  <circle cx="160" cy="156" r="9" fill="#ffb3c4"/>
+  <!-- リボン（青） -->
+  <circle cx="150" cy="82" r="13" fill="#7bbcff"/>
+  <circle cx="130" cy="76" r="10" fill="#7bbcff"/>
+</svg>

@@ -2,26 +2,27 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1,
+                 user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#f6eaf1" />
   <title>cute-escape</title>
 
-  <!-- GitHub Pages 用の manifest（相対でOK。中身の start_url/scope は絶対パスにしておくこと） -->
+  <!-- PWA -->
   <link rel="manifest" href="./public/manifest.webmanifest" />
 
-  <!-- キャッシュ破りのクエリをつける（開発/デプロイ更新時に数値を上げる） -->
+  <!-- UI -->
   <link rel="stylesheet" href="./src/ui.css?v=20251024" />
 </head>
 <body>
-  <!-- 9:18 ビューポート（この中に全要素を収める） -->
   <div id="viewport">
-    <!-- HUD（上中央） -->
+    <!-- HUD -->
     <div id="hud"><div id="timer" class="badge">30.0</div></div>
 
     <!-- ゲームキャンバス -->
     <canvas id="game" aria-label="game canvas"></canvas>
 
-    <!-- D-Pad（下部） -->
+    <!-- D-Pad -->
     <div id="controls">
       <div class="dpad">
         <button id="btn-up" class="btn">▲</button>
@@ -33,12 +34,24 @@
       </div>
     </div>
 
-    <!-- START オーバーレイ（やや下寄せ） -->
-    <div id="start-screen" class="overlay start">
+    <!-- START オーバーレイ（キャラ選択あり） -->
+    <div id="start-screen" class="overlay">
       <div class="card">
         <h1>cute-escape</h1>
         <p>Stage <b>1-1</b>｜30秒以内にゴールへ！</p>
-        <button id="btn-start" class="primary">START 1-1</button>
+
+        <div class="char-select">
+          <button class="char-btn selected" data-char="ribbon">
+            <img src="./public/assets/player-ribbon.svg" alt="Ribbon" />
+            <span>RIBBON</span>
+          </button>
+          <button class="char-btn" data-char="boy">
+            <img src="./public/assets/player-boy.svg" alt="Boy" />
+            <span>BOY</span>
+          </button>
+        </div>
+
+        <button id="btn-start" class="primary">START</button>
       </div>
     </div>
 
@@ -51,19 +64,18 @@
           <button id="btn-next" class="primary">NEXT STAGE</button>
           <button id="btn-home" class="ghost">HOME</button>
         </div>
-        <div class="row">
-          <button id="btn-retry" class="">RETRY</button>
-        </div>
+        <div class="row"><button id="btn-retry">RETRY</button></div>
       </div>
     </div>
   </div>
 
-  <!-- PWA（PagesのみSW有効）＋ iOS ダブルタップズーム対策 -->
+  <!-- PWA（PagesのみSW有効）＋ 各種タッチ/コピー対策 -->
   <script>
+    // GitHub Pages のドメイン上だけ SW を登録
     const isProd = /github\.io$/.test(location.hostname);
     if ('serviceWorker' in navigator && isProd) {
-      // ★ GitHub Pages のリポ名に合わせた絶対パス
       window.addEventListener('load', () => {
+        // リポ名が違う場合はここを置換
         navigator.serviceWorker.register('/cute-escape/sw.js', { scope: '/cute-escape/' }).catch(()=>{});
       });
     } else {
@@ -72,7 +84,7 @@
       caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
     }
 
-    // iOS ダブルタップズーム無効
+    // iOS ダブルタップズーム無効（素早い連打で拡大しない）
     (function(){
       let last=0;
       window.addEventListener('touchend', e=>{
@@ -81,43 +93,20 @@
         last=now;
       }, {passive:false});
     })();
-    
+
+    // スマホの長押しコピー/右クリック等のメニューを広く抑止（ゲーム内のみを想定）
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    document.addEventListener('copy', e => e.preventDefault());
+    // 外部キーボードからのショートカット抑止
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && ['c','x','a','s','u','p'].includes(e.key.toLowerCase())) {
+        e.preventDefault();
+      }
+    }, {passive:false});
   </script>
 
-  <!-- main.js にもバージョン付与 -->
+  <!-- エントリ -->
   <script type="module" src="./src/main.js?v=20251024"></script>
-  <script>
-  // --- 右クリック/長押しメニュー無効 ---
-  document.addEventListener('contextmenu', e => e.preventDefault());
-
-  // --- テキスト選択の開始そのものを無効 ---
-  document.addEventListener('selectstart', e => e.preventDefault());
-
-  // --- コピー系ショートカット無効（モバイルで外部キーボード対策）---
-  document.addEventListener('keydown', e => {
-    if ((e.ctrlKey || e.metaKey) && ['c','x','a','s','u','p'].includes(e.key.toLowerCase())) {
-      e.preventDefault();
-    }
-  }, {passive:false});
-
-  // --- iOS Safari の長押しコールアウト保険（入力系は除外）---
-  let pressTimer = null;
-  document.addEventListener('touchstart', (e) => {
-    // 入力系は除外（もし使う場合）
-    if (e.target.closest('input, textarea, [contenteditable], [data-allow-select]')) return;
-    // 長押し起点を潰す。短押しはOK（D-Padはpointerdownで動く）
-    pressTimer = setTimeout(() => {
-      e.preventDefault();
-    }, 300); // 300ms超の長押しでprevent
-  }, {passive:false});
-
-  document.addEventListener('touchend', () => { clearTimeout(pressTimer); }, {passive:true});
-  document.addEventListener('touchmove', () => { clearTimeout(pressTimer); }, {passive:true});
-
-  // --- 画像のドラッグ開始を更に無効（iOSの“保存”誘発を抑える）---
-  document.addEventListener('dragstart', e => e.preventDefault());
-  // 一部ブラウザでのコピーイベント自体も潰す
-  document.addEventListener('copy', e => e.preventDefault());
-</script>
 </body>
 </html>

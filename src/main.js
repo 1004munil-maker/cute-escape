@@ -1,4 +1,4 @@
-// main.js — ties UI and game
+// main.js — ties UI, character select, SFX, and game
 import { startGame } from './game.js';
 import { makeSfx } from './sfx.js';
 
@@ -13,9 +13,50 @@ const btnHome  = document.getElementById('btn-home');
 const btnRetry = document.getElementById('btn-retry');
 const timerEl  = document.getElementById('timer');
 
-// ▼ SFX 準備（先頭に全角スペースを置かないこと！）
+/* ============================
+   画像を ImageBitmap 化して軽くする
+============================ */
+async function loadBitmap(src){
+  const img = new Image();
+  img.src = src;
+  // decode() で描画前にデコード完了を保証（jank回避）
+  if (img.decode) { await img.decode(); }
+  if ('createImageBitmap' in window) {
+    try {
+      return await createImageBitmap(img);
+    } catch {
+      // 一部環境で失敗したらそのまま Image を返す
+    }
+  }
+  return img; // 旧環境は通常の Image を使用
+}
+
+/* ============================
+   キャラ画像（PNG）をプリロード
+============================ */
+// 必要に応じてパスは調整してね
+const charSrcs = {
+  ribbon: './public/assets/png/player-ribbon-256.png',
+  boy:    './public/assets/png/player-boy-256.png'
+};
+
+const charImages = {};
+let currentChar = 'ribbon';
+
+const preloadPromise = Promise.all(
+  Object.entries(charSrcs).map(async ([key, src])=>{
+    charImages[key] = await loadBitmap(src);
+  })
+);
+
+/* ============================
+   SFX
+============================ */
 const sfx = makeSfx();
 
+/* ============================
+   Game 起動（assets 経由で画像を渡す）
+============================ */
 const game = startGame(canvas, {
   onTime: (t) => { timerEl.textContent = t.toFixed(1); },
   onOver: (reason) => {
@@ -30,20 +71,51 @@ const game = startGame(canvas, {
     resultScreen.classList.remove('hidden');
     sfx.play('clear');
   },
-  onBump: () => { sfx.play('bum'); }   // ← ここにカンマ忘れない
+  onBump: () => { sfx.play('bum'); }
+}, {
+  getPlayerImg: () => charImages[currentChar]
 });
 
-// タップ取りこぼし回避のため pointerup を主に、保険で click も登録
+/* ============================
+   キャラ選択 UI
+============================ */
+const charBtns = document.querySelectorAll('.char-btn');
+
+function updateSelectedUI(){
+  charBtns.forEach(btn=>{
+    btn.classList.toggle('selected', btn.dataset.char === currentChar);
+  });
+}
+charBtns.forEach(btn=>{
+  const key = btn.dataset.char;
+  // 押しやすさ重視で pointerup、保険で click
+  const choose = (e) => {
+    e.preventDefault();
+    currentChar = key;
+    updateSelectedUI();
+  };
+  btn.addEventListener('pointerup', choose, { passive:false });
+  btn.addEventListener('click',     choose, { passive:false });
+});
+updateSelectedUI();
+
+/* ============================
+   START
+============================ */
 const startHandler = async (e) => {
   e.preventDefault();
-  startScreen.classList.add('hidden');
-  await sfx.unlock();     // iOS等で最初のユーザー操作時に解錠
+  await preloadPromise;   // 画像読み込みを待つ
+  await sfx.unlock();     // iOS等で最初の操作時に解錠
   sfx.play('start');
+  startScreen.classList.add('hidden');
   game.run();
 };
 btnStart.addEventListener('pointerup', startHandler, { passive:false });
 btnStart.addEventListener('click',     startHandler, { passive:false });
 
+/* ============================
+   その他
+============================ */
 btnHome.addEventListener('click', () => { location.reload(); });
 btnRetry.addEventListener('click', () => {
   resultScreen.classList.add('hidden');
