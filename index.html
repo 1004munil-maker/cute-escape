@@ -5,13 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#f6eaf1" />
   <title>cute-escape</title>
+
+  <!-- GitHub Pages 用の manifest（相対でOK。中身の start_url/scope は絶対パスにしておくこと） -->
   <link rel="manifest" href="./public/manifest.webmanifest" />
+
+  <!-- キャッシュ破りのクエリをつける（開発/デプロイ更新時に数値を上げる） -->
   <link rel="stylesheet" href="./src/ui.css?v=20251024" />
 </head>
 <body>
+  <!-- 9:18 ビューポート（この中に全要素を収める） -->
   <div id="viewport">
+    <!-- HUD（上中央） -->
     <div id="hud"><div id="timer" class="badge">30.0</div></div>
+
+    <!-- ゲームキャンバス -->
     <canvas id="game" aria-label="game canvas"></canvas>
+
+    <!-- D-Pad（下部） -->
     <div id="controls">
       <div class="dpad">
         <button id="btn-up" class="btn">▲</button>
@@ -22,6 +32,8 @@
         </div>
       </div>
     </div>
+
+    <!-- START オーバーレイ（やや下寄せ） -->
     <div id="start-screen" class="overlay start">
       <div class="card">
         <h1>cute-escape</h1>
@@ -29,6 +41,8 @@
         <button id="btn-start" class="primary">START 1-1</button>
       </div>
     </div>
+
+    <!-- 結果オーバーレイ -->
     <div id="result-screen" class="overlay hidden">
       <div class="card">
         <h2 id="result-title">CLEAR!</h2>
@@ -44,19 +58,32 @@
     </div>
   </div>
 
+  <!-- PWA（PagesのみSW有効）＋ iOS ダブルタップズーム対策 -->
   <script>
     const isProd = /github\.io$/.test(location.hostname);
     if ('serviceWorker' in navigator && isProd) {
+      // ★ GitHub Pages のリポ名に合わせた絶対パス
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/cute-escape/sw.js', { scope: '/cute-escape/' }).catch(()=>{});
       });
     } else {
+      // 開発時はSWを無効化＆キャッシュ掃除（念のため）
       navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
       caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
     }
-    (function(){ let last=0; window.addEventListener('touchend', e=>{ const now=Date.now(); if(now-last<350) e.preventDefault(); last=now; }, {passive:false}); })();
+
+    // iOS ダブルタップズーム無効
+    (function(){
+      let last=0;
+      window.addEventListener('touchend', e=>{
+        const now=Date.now();
+        if(now-last<350) e.preventDefault();
+        last=now;
+      }, {passive:false});
+    })();
   </script>
 
+  <!-- main.js にもバージョン付与 -->
   <script type="module" src="./src/main.js?v=20251024"></script>
 </body>
 </html>
