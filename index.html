@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#f6eaf1" />
+  <title>cute-escape</title>
+  <link rel="manifest" href="./public/manifest.webmanifest" />
+  <link rel="stylesheet" href="./src/ui.css" />
+</head>
+<body>
+  <div id="viewport" aria-label="9:18 viewport">
+    <div id="hud"><div id="timer" class="badge">30.0</div></div>
+    <canvas id="game" aria-label="game canvas"></canvas>
+    <div id="controls">
+      <div class="dpad">
+        <button id="btn-up" class="btn" aria-label="Up">▲</button>
+        <div class="mid">
+          <button id="btn-left" class="btn" aria-label="Left">◀</button>
+          <button id="btn-down" class="btn" aria-label="Down">▼</button>
+          <button id="btn-right" class="btn" aria-label="Right">▶</button>
+        </div>
+      </div>
+    </div>
+    <div id="start-screen" class="overlay start">
+      <div class="card">
+        <h1>cute-escape</h1>
+        <img class="char" src="./public/assets/character-sheet.svg" alt="character" />
+        <p>Stage <b>1-1</b>｜30秒以内にゴールへ！</p>
+        <button id="btn-start" class="primary">START 1-1</button>
+      </div>
+    </div>
+    <div id="result-screen" class="overlay hidden">
+      <div class="card">
+        <h2 id="result-title">CLEAR!</h2>
+        <p id="result-sub">次に進みますか？</p>
+        <div class="row">
+          <button id="btn-next" class="primary">NEXT STAGE</button>
+          <button id="btn-home" class="ghost">HOME</button>
+        </div>
+        <div class="row">
+          <button id="btn-retry" class="">RETRY</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./public/sw.js').catch(()=>{});
+      });
+    }
+    (function(){ let last=0; window.addEventListener('touchend', e=>{
+      const now=Date.now(); if(now-last<350) e.preventDefault(); last=now;
+    }, {passive:false}); })();
+  </script>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
