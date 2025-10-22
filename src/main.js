@@ -1,5 +1,7 @@
 // main.js — ties UI and game
 import { startGame } from './game.js';
+import { makeSfx } from './sfx.js';
+
 
 const canvas = document.getElementById('game');
 const startScreen = document.getElementById('start-screen');
@@ -12,22 +14,34 @@ const btnHome = document.getElementById('btn-home');
 const btnRetry = document.getElementById('btn-retry');
 const timerEl = document.getElementById('timer');
 
-const game = startGame(canvas, {
+// ▼ SFX 準備
+　const sfx = makeSfx();
+
+ const game = startGame(canvas, {
   onTime: (t)=>{ timerEl.textContent = t.toFixed(1); },
   onOver: (reason)=>{
     resultTitle.textContent = "GAME OVER";
     resultSub.textContent = reason || "";
     resultScreen.classList.remove('hidden');
+    sfx.play('lose');
+
   },
   onClear: ()=>{
     resultTitle.textContent = "CLEAR!";
     resultSub.textContent = "1-2 に進みますか？（MVP）";
     resultScreen.classList.remove('hidden');
+     sfx.play('clear');
+
   }
+   onBump: ()=>{ sfx.play('bum'); }
+
 });
 
 btnStart.addEventListener('click', ()=>{
   startScreen.classList.add('hidden');
+   await sfx.unlock();  // ★ iOS等で必要：最初のユーザー操作で解錠
+  sfx.play('start');
+
   game.run();
 });
 btnHome.addEventListener('click', ()=>{ location.reload(); });
