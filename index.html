@@ -81,9 +81,25 @@
         last=now;
       }, {passive:false});
     })();
+    
   </script>
 
   <!-- main.js にもバージョン付与 -->
   <script type="module" src="./src/main.js?v=20251024"></script>
+  <script>
+  // --- テキスト選択禁止 ---
+  document.addEventListener("selectstart", (e) => e.preventDefault());
+
+  // --- 右クリック禁止 ---
+  document.addEventListener("contextmenu", (e) => e.preventDefault());
+
+  // --- Ctrl+C / Ctrl+X / Ctrl+S / Ctrl+U など禁止 ---
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && 
+        ["c", "x", "s", "u", "p", "a"].includes(e.key.toLowerCase())) {
+      e.preventDefault();
+    }
+  });
+</script>
 </body>
 </html>
