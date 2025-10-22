@@ -109,24 +109,64 @@ button.ghost{ background:transparent; border:2px solid #e8d4df; }
    - .overlay の重複定義
    - .overlay.start の下寄せ指定（中央寄せを崩すため） */
 
-   /* === キャラ選択 === */
+/* === キャラ選択（置き換え）=== */
 .char-select{
   display:flex;
   gap:10px;
   justify-content:center;
   margin:8px 0 12px;
 }
+
+/* 基本ボタン */
 .char-btn{
-  display:flex; flex-direction:column; align-items:center; gap:6px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
   background:#fff;
   border:2px solid #e8d4df;
   border-radius:12px;
   padding:8px 10px;
   min-width:92px;
+  transition:
+    transform .06s ease,
+    border-color .12s ease,
+    box-shadow .12s ease,
+    background-color .12s ease;
 }
+
+/* 画像サイズ：64px → 24px（=約3倍小さく） */
+.char-btn img{
+  width:24px;
+  height:24px;
+  pointer-events:none;
+  image-rendering:auto; /* ぼけ防止（PNGならそのままでOK） */
+}
+
+/* ラベル */
+.char-btn span{
+  font:600 12px/1 ui-rounded, system-ui;
+  color:#555;
+}
+
+/* 選択状態（常に少しピンク寄り＋強調ボーダー） */
 .char-btn.selected{
   border-color: var(--accent);
+  background: #fff5f9; /* うっすらピンク */
   box-shadow: 0 0 0 2px rgba(255,143,177,.18) inset;
 }
-.char-btn img{ width:64px; height:64px; pointer-events:none; }
-.char-btn span{ font:600 12px/1 ui-rounded, system-ui; color:#555; }
+
+/* 押下中（タップ中/クリック中）：しっかりピンクに変化して“押した感”を出す */
+.char-btn:active,
+.char-btn.pressed{
+  background: #ffe8f1;         /* 薄いピンクハイライト */
+  border-color: #ffb5cc;
+  transform: scale(0.96);      /* ちょい縮む */
+}
+
+/* キーボード操作時のアクセシビリティ */
+.char-btn:focus-visible{
+  outline:3px solid rgba(123, 188, 255, .55);
+  outline-offset:3px;
+  border-radius:14px;
+}

@@ -1,14 +1,14 @@
 // game.js — top-down free movement (no jump), reach goal within 30s.
-// 画像でプレイヤーを描画するため、assets.getPlayerImg() を参照
+// 画像でプレイヤーを描画（assets.getPlayerImg() を参照）
 import { input, setupInput } from './input.js';
 
-export function startGame(canvas, ui, assets = {}){
+export function startGame(canvas, ui, assets = {}) {
   setupInput();
-  const ctx = canvas.getContext('2d', { alpha:false });
+  const ctx = canvas.getContext('2d', { alpha: false });
 
   let tile = 0, running = false, over = false, cleared = false, time = 30;
 
-  function fit(){
+  function fit() {
     const vp = document.getElementById('viewport');
     const rect = vp.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -16,13 +16,13 @@ export function startGame(canvas, ui, assets = {}){
     canvas.height = Math.floor(rect.height * dpr);
     canvas.style.width  = rect.width  + 'px';
     canvas.style.height = rect.height + 'px';
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    tile = rect.width / 9; // 横9タイル基準
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    tile = rect.width / 9; // 横9タイル
   }
   fit();
-  addEventListener('resize', fit, { passive:true });
+  addEventListener('resize', fit, { passive: true });
 
-  // World (9x18 tiles)
+  // World (9x18)
   const player = { x:1, y:1, w:1, h:1, speed:3.0 };
   const goal   = { x:7.5, y:16.0, w:1, h:1 };
   const enemy  = { x:7.5, y:1.0,  r:0.45, speed:1.6 };
@@ -43,7 +43,7 @@ export function startGame(canvas, ui, assets = {}){
     return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
   }
 
-  // 壁ヒットSE連打抑制
+  // 壁ヒットSEの連打抑制
   let lastBumpAt = 0;
   const BUMP_COOLDOWN = 0.12;
 
@@ -86,12 +86,12 @@ export function startGame(canvas, ui, assets = {}){
     let vx=0, vy=0;
     if (input.left)  vx -= 1;
     if (input.right) vx += 1;
-    if (input.up)    vy += 1;   // 上 = Y+
-    if (input.down)  vy -= 1;   // 下 = Y-
+    if (input.up)    vy += 1; // 上 = Y+
+    if (input.down)  vy -= 1; // 下 = Y-
     if (vx || vy){ const n = Math.hypot(vx,vy); vx/=n; vy/=n; }
     moveAndCollide(player, vx*player.speed*dt, vy*player.speed*dt);
 
-    // 敵のホーミング（簡易）
+    // 敵（簡易ホーミング）
     const dx = (player.x+player.w/2) - enemy.x;
     const dy = (player.y+player.h/2) - enemy.y;
     const dn = Math.hypot(dx,dy) || 1;
@@ -143,11 +143,9 @@ export function startGame(canvas, ui, assets = {}){
     g.addColorStop(0, "#fff8fd"); g.addColorStop(1, "#f2e6f0");
     ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
 
-    // ゴール
+    // ゴール・壁・ケーキ
     drawRR(goal.x, goal.y, goal.w, goal.h, 0.2, "#d3f8a6");
-    // 壁
     for (const w of walls){ drawRR(w.x, w.y, w.w, w.h, 0.08, "#ffffff"); }
-    // ケーキ
     for (const c of cakes){ drawRR(c.x, c.y, c.w, c.h, 0.2, "#ffb6cc"); }
 
     // 敵（円）
@@ -163,6 +161,7 @@ export function startGame(canvas, ui, assets = {}){
     if (img){
       ctx.drawImage(img, px, py, pw, ph);
     } else {
+      // フォールバック：白角丸（旧描画）
       drawRR(player.x, player.y, player.w, player.h, 0.25, "#ffffff");
     }
   }

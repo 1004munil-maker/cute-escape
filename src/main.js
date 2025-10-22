@@ -79,24 +79,42 @@ const game = startGame(canvas, {
 /* ============================
    キャラ選択 UI
 ============================ */
+// === キャラ選択（置き換え）===
 const charBtns = document.querySelectorAll('.char-btn');
 
 function updateSelectedUI(){
   charBtns.forEach(btn=>{
-    btn.classList.toggle('selected', btn.dataset.char === currentChar);
+    const isSel = btn.dataset.char === currentChar;
+    btn.classList.toggle('selected', isSel);
+    btn.setAttribute('aria-pressed', String(isSel)); // 視覚＋アクセシビリティ
   });
 }
+
 charBtns.forEach(btn=>{
   const key = btn.dataset.char;
-  // 押しやすさ重視で pointerup、保険で click
+
   const choose = (e) => {
     e.preventDefault();
     currentChar = key;
     updateSelectedUI();
+    // 押下音（無ければスキップ）
+    try { sfx?.play?.('tick'); } catch {}
   };
-  btn.addEventListener('pointerup', choose, { passive:false });
-  btn.addEventListener('click',     choose, { passive:false });
+
+  // 押している間のフィードバック（縮む/色変化）
+  btn.addEventListener('pointerdown', () => btn.classList.add('pressed'));
+
+  // 指を離したときに確定（タップ取りこぼし防止のため pointerup を主とする）
+  btn.addEventListener('pointerup',   (e)=>{ btn.classList.remove('pressed'); choose(e); }, {passive:false});
+
+  // 中断・外れた時は押下スタイルだけ解除
+  btn.addEventListener('pointercancel', () => btn.classList.remove('pressed'));
+  btn.addEventListener('pointerleave',  () => btn.classList.remove('pressed'));
+
+  // 保険で click も（デスクトップ等）
+  btn.addEventListener('click', (e)=>{ btn.classList.remove('pressed'); choose(e); }, {passive:false});
 });
+
 updateSelectedUI();
 
 /* ============================
