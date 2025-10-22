@@ -170,3 +170,20 @@ button.ghost{ background:transparent; border:2px solid #e8d4df; }
   outline-offset:3px;
   border-radius:14px;
 }
+
+/* === キャラ選択パネル === */
+.char-panel{
+  overflow:hidden;
+  max-height:0;
+  opacity:0;
+  transform: translateY(-4px);
+  transition: max-height .22s ease, opacity .18s ease, transform .22s ease;
+  margin-top:8px;
+}
+.char-panel.open{
+  max-height: 200px;  /* パネルの中身の高さより少し大きめに */
+  opacity:1;
+  transform: translateY(0);
+}
+
+/* 既存の .char-select / .char-btn はそのままでOK（前回渡した色/押下スタイルも可） */

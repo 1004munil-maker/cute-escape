@@ -19,14 +19,9 @@ const timerEl  = document.getElementById('timer');
 async function loadBitmap(src){
   const img = new Image();
   img.src = src;
-  // decode() で描画前にデコード完了を保証（jank回避）
-  if (img.decode) { await img.decode(); }
+  if (img.decode) { try { await img.decode(); } catch {} }
   if ('createImageBitmap' in window) {
-    try {
-      return await createImageBitmap(img);
-    } catch {
-      // 一部環境で失敗したらそのまま Image を返す
-    }
+    try { return await createImageBitmap(img); } catch {}
   }
   return img; // 旧環境は通常の Image を使用
 }
@@ -34,7 +29,6 @@ async function loadBitmap(src){
 /* ============================
    キャラ画像（PNG）をプリロード
 ============================ */
-// 必要に応じてパスは調整してね
 const charSrcs = {
   ribbon: './public/assets/png/player-ribbon-256.png',
   boy:    './public/assets/png/player-boy-256.png'
@@ -47,12 +41,16 @@ const preloadPromise = Promise.all(
   Object.entries(charSrcs).map(async ([key, src])=>{
     charImages[key] = await loadBitmap(src);
   })
-);
+).catch(err=>{
+  // 画像が1つでも失敗しても、ゲームは続行できるようにする
+  console.warn('[preload]', err);
+});
 
 /* ============================
    SFX
 ============================ */
-const sfx = makeSfx();
+let sfx;
+try { sfx = makeSfx(); } catch { sfx = null; }
 
 /* ============================
    Game 起動（assets 経由で画像を渡す）
@@ -63,33 +61,60 @@ const game = startGame(canvas, {
     resultTitle.textContent = "GAME OVER";
     resultSub.textContent = reason || "";
     resultScreen.classList.remove('hidden');
-    sfx.play('lose');
+    try { sfx?.play?.('lose'); } catch {}
   },
   onClear: () => {
     resultTitle.textContent = "CLEAR!";
     resultSub.textContent = "1-2 に進みますか？（MVP）";
     resultScreen.classList.remove('hidden');
-    sfx.play('clear');
+    try { sfx?.play?.('clear'); } catch {}
   },
-  onBump: () => { sfx.play('bum'); }
+  onBump: () => { try { sfx?.play?.('bum'); } catch {} }
 }, {
   getPlayerImg: () => charImages[currentChar]
 });
 
 /* ============================
-   キャラ選択 UI
+   キャラ選択 UI（パネル対応・無くても動作）
 ============================ */
-// === キャラ選択（置き換え）===
-const charBtns = document.querySelectorAll('.char-btn');
+const btnChoose = document.getElementById('btn-choose'); // ない場合もあり
+const charPanel = document.getElementById('char-panel'); // ない場合もあり
+const charBtns  = document.querySelectorAll('.char-btn');
 
 function updateSelectedUI(){
   charBtns.forEach(btn=>{
     const isSel = btn.dataset.char === currentChar;
     btn.classList.toggle('selected', isSel);
-    btn.setAttribute('aria-pressed', String(isSel)); // 視覚＋アクセシビリティ
+    btn.setAttribute('aria-pressed', String(isSel));
   });
 }
 
+function setCharPanel(open){
+  if (!btnChoose || !charPanel) return; // 要素が無ければスキップ
+  if (open) {
+    charPanel.hidden = false;
+    requestAnimationFrame(()=> charPanel.classList.add('open'));
+  } else {
+    charPanel.classList.remove('open');
+    setTimeout(()=>{ charPanel.hidden = true; }, 220);
+  }
+  btnChoose.setAttribute('aria-expanded', String(open));
+}
+
+// トグルボタン（存在する時だけ）
+if (btnChoose && charPanel){
+  setCharPanel(false);
+  const togglePanel = (e) => {
+    e.preventDefault();
+    const open = charPanel.hidden || !charPanel.classList.contains('open');
+    setCharPanel(open);
+    if (open) setTimeout(()=> charBtns[0]?.focus?.(), 10);
+  };
+  btnChoose.addEventListener('pointerup', togglePanel, {passive:false});
+  btnChoose.addEventListener('click',     togglePanel, {passive:false});
+}
+
+// キャラ選択ボタン（常設でもパネル内でもOK）
 charBtns.forEach(btn=>{
   const key = btn.dataset.char;
 
@@ -97,24 +122,17 @@ charBtns.forEach(btn=>{
     e.preventDefault();
     currentChar = key;
     updateSelectedUI();
-    // 押下音（無ければスキップ）
     try { sfx?.play?.('tick'); } catch {}
+    // パネルがあれば閉じる
+    if (btnChoose && charPanel) setCharPanel(false);
   };
 
-  // 押している間のフィードバック（縮む/色変化）
-  btn.addEventListener('pointerdown', () => btn.classList.add('pressed'));
-
-  // 指を離したときに確定（タップ取りこぼし防止のため pointerup を主とする）
+  btn.addEventListener('pointerdown', ()=> btn.classList.add('pressed'));
   btn.addEventListener('pointerup',   (e)=>{ btn.classList.remove('pressed'); choose(e); }, {passive:false});
-
-  // 中断・外れた時は押下スタイルだけ解除
-  btn.addEventListener('pointercancel', () => btn.classList.remove('pressed'));
-  btn.addEventListener('pointerleave',  () => btn.classList.remove('pressed'));
-
-  // 保険で click も（デスクトップ等）
+  btn.addEventListener('pointercancel', ()=> btn.classList.remove('pressed'));
+  btn.addEventListener('pointerleave',  ()=> btn.classList.remove('pressed'));
   btn.addEventListener('click', (e)=>{ btn.classList.remove('pressed'); choose(e); }, {passive:false});
 });
-
 updateSelectedUI();
 
 /* ============================
@@ -122,9 +140,14 @@ updateSelectedUI();
 ============================ */
 const startHandler = async (e) => {
   e.preventDefault();
-  await preloadPromise;   // 画像読み込みを待つ
-  await sfx.unlock();     // iOS等で最初の操作時に解錠
-  sfx.play('start');
+
+  // 画像プリロードは best-effort（失敗してもゲームは走らせる）
+  try { await preloadPromise; } catch {}
+
+  // 音の解錠は best-effort
+  try { await sfx?.unlock?.(); } catch {}
+
+  try { sfx?.play?.('start'); } catch {}
   startScreen.classList.add('hidden');
   game.run();
 };
@@ -134,9 +157,9 @@ btnStart.addEventListener('click',     startHandler, { passive:false });
 /* ============================
    その他
 ============================ */
-btnHome.addEventListener('click', () => { location.reload(); });
-btnRetry.addEventListener('click', () => {
+btnHome?.addEventListener('click', () => { location.reload(); });
+btnRetry?.addEventListener('click', () => {
   resultScreen.classList.add('hidden');
   game.run();
 });
-btnNext.addEventListener('click', () => { location.reload(); });
+btnNext?.addEventListener('click', () => { location.reload(); });
