@@ -6,26 +6,32 @@
   <meta name="theme-color" content="#f6eaf1" />
   <title>cute-escape</title>
   <link rel="manifest" href="./public/manifest.webmanifest" />
-  <link rel="stylesheet" href="./src/ui.css" />
+
+  <!-- キャッシュ破りのクエリ（開発時用）をCSSにも付与 -->
+  <link rel="stylesheet" href="./src/ui.css?v=20251023" />
 </head>
 <body>
-  <div id="viewport" aria-label="9:18 viewport">
+  <!-- 9:18 ビューポート（ここに全て収める） -->
+  <div id="viewport">
+    <!-- HUD -->
     <div id="hud"><div id="timer" class="badge">30.0</div></div>
+    <!-- ゲームキャンバス -->
     <canvas id="game" aria-label="game canvas"></canvas>
+    <!-- D-Pad -->
     <div id="controls">
       <div class="dpad">
-        <button id="btn-up" class="btn" aria-label="Up">▲</button>
+        <button id="btn-up" class="btn">▲</button>
         <div class="mid">
-          <button id="btn-left" class="btn" aria-label="Left">◀</button>
-          <button id="btn-down" class="btn" aria-label="Down">▼</button>
-          <button id="btn-right" class="btn" aria-label="Right">▶</button>
+          <button id="btn-left" class="btn">◀</button>
+          <button id="btn-down" class="btn">▼</button>
+          <button id="btn-right" class="btn">▶</button>
         </div>
       </div>
     </div>
+    <!-- START / RESULT オーバーレイ -->
     <div id="start-screen" class="overlay start">
       <div class="card">
         <h1>cute-escape</h1>
-        <img class="char" src="./public/assets/character-sheet.svg" alt="character" />
         <p>Stage <b>1-1</b>｜30秒以内にゴールへ！</p>
         <button id="btn-start" class="primary">START 1-1</button>
       </div>
@@ -44,16 +50,33 @@
       </div>
     </div>
   </div>
+
+  <!-- ▼ ここから：あなたのスニペット（そのまま） ▼ -->
   <script>
-    if ('serviceWorker' in navigator) {
+    const isProd = /github\.io$/.test(location.hostname);
+    if ('serviceWorker' in navigator && isProd) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./public/sw.js').catch(()=>{});
       });
+    } else {
+      // 開発時はSWを無効化＆キャッシュ掃除（念のため）
+      navigator.serviceWorker?.getRegistrations?.().then(rs=>rs.forEach(r=>r.unregister()));
+      caches?.keys?.().then(keys=>keys.forEach(k=>caches.delete(k)));
     }
-    (function(){ let last=0; window.addEventListener('touchend', e=>{
-      const now=Date.now(); if(now-last<350) e.preventDefault(); last=now;
-    }, {passive:false}); })();
+
+    // iOS ダブルタップズーム無効
+    (function(){
+      let last=0;
+      window.addEventListener('touchend', e=>{
+        const now=Date.now();
+        if(now-last<350) e.preventDefault();
+        last=now;
+      }, {passive:false});
+    })();
   </script>
-  <script type="module" src="./src/main.js"></script>
+
+  <!-- キャッシュ破りのクエリ（開発時用）を main.js にも付与 -->
+  <script type="module" src="./src/main.js?v=20251023"></script>
+  <!-- ▲ ここまで：あなたのスニペット ▲ -->
 </body>
 </html>
