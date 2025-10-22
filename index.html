@@ -87,19 +87,37 @@
   <!-- main.js にもバージョン付与 -->
   <script type="module" src="./src/main.js?v=20251024"></script>
   <script>
-  // --- テキスト選択禁止 ---
-  document.addEventListener("selectstart", (e) => e.preventDefault());
+  // --- 右クリック/長押しメニュー無効 ---
+  document.addEventListener('contextmenu', e => e.preventDefault());
 
-  // --- 右クリック禁止 ---
-  document.addEventListener("contextmenu", (e) => e.preventDefault());
+  // --- テキスト選択の開始そのものを無効 ---
+  document.addEventListener('selectstart', e => e.preventDefault());
 
-  // --- Ctrl+C / Ctrl+X / Ctrl+S / Ctrl+U など禁止 ---
-  document.addEventListener("keydown", (e) => {
-    if ((e.ctrlKey || e.metaKey) && 
-        ["c", "x", "s", "u", "p", "a"].includes(e.key.toLowerCase())) {
+  // --- コピー系ショートカット無効（モバイルで外部キーボード対策）---
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && ['c','x','a','s','u','p'].includes(e.key.toLowerCase())) {
       e.preventDefault();
     }
-  });
+  }, {passive:false});
+
+  // --- iOS Safari の長押しコールアウト保険（入力系は除外）---
+  let pressTimer = null;
+  document.addEventListener('touchstart', (e) => {
+    // 入力系は除外（もし使う場合）
+    if (e.target.closest('input, textarea, [contenteditable], [data-allow-select]')) return;
+    // 長押し起点を潰す。短押しはOK（D-Padはpointerdownで動く）
+    pressTimer = setTimeout(() => {
+      e.preventDefault();
+    }, 300); // 300ms超の長押しでprevent
+  }, {passive:false});
+
+  document.addEventListener('touchend', () => { clearTimeout(pressTimer); }, {passive:true});
+  document.addEventListener('touchmove', () => { clearTimeout(pressTimer); }, {passive:true});
+
+  // --- 画像のドラッグ開始を更に無効（iOSの“保存”誘発を抑える）---
+  document.addEventListener('dragstart', e => e.preventDefault());
+  // 一部ブラウザでのコピーイベント自体も潰す
+  document.addEventListener('copy', e => e.preventDefault());
 </script>
 </body>
 </html>

@@ -52,3 +52,23 @@ button.ghost{ background:transparent; border:2px solid #e8d4df; }
 .dpad .mid{ display:flex; gap:6px; align-items:center; }
 .btn{ min-width:46px; min-height:46px; border-radius:12px; background:#fff; }
 #btn-up, #btn-down, #btn-left, #btn-right{ font-size:16px; }
+
+/* === コピー/選択/長押しコールアウトの全面禁止（ゲーム領域） === */
+html, body, #viewport, #viewport * {
+  -webkit-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important; /* iOS: 長押しメニュー */
+  -webkit-tap-highlight-color: transparent; /* タップ時のハイライト */
+}
+
+#viewport img, #viewport canvas, #viewport a, #viewport button {
+  -webkit-user-drag: none;   /* iOS Safari/Chrome: 長押し→画像保存を防止 */
+  touch-action: manipulation; /* 長押しズームやダブルタップを抑制 */
+}
+
+/* もし一部だけ選択OKにしたいとき（説明テキスト等） */
+[data-allow-select], [data-allow-select] * {
+  -webkit-user-select: text !important;
+  user-select: text !important;
+  -webkit-touch-callout: default !important;
+}
