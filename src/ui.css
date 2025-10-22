@@ -1,12 +1,31 @@
 :root{ --bg:#fff7fb; --ink:#2a2a2a; --accent:#ff8fb1; --panel:#ffffff; }
 *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 html,body{ margin:0; height:100%; background:var(--bg); overflow:hidden; }
-#viewport{
-  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
-  width: min(100vw, 50vh);
-  height: calc(min(100vw, 50vh) * 2);
-  background:#f7eff5; border-radius:12px; box-shadow:0 10px 40px rgba(0,0,0,.12);
-  overflow:hidden;
+/* ビューポートを9:18に固定して中央配置 */
+#viewport {
+  position: relative;
+  width: 100%;
+  max-width: 100vh;        /* 縦横比維持のための目安 */
+  aspect-ratio: 9 / 18;    /* ★これで縦長を保証 */
+  margin: 0 auto;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+/* オーバーレイを中央に配置 */
+.overlay {
+  position: absolute;   /* fixed ではなく relative 親 (#viewport) に対して配置 */
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(246, 234, 241, 0.8);
+  backdrop-filter: blur(4px);
+}
+
+.overlay.hidden {
+  display: none;
 }
 @media (max-aspect-ratio: 1/2){
   #viewport{ width: 90vw; height: 180vw; }
